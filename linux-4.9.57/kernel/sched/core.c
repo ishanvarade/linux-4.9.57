@@ -4579,7 +4579,7 @@ SYSCALL_DEFINE3(sched_setscheduler, pid_t, pid, int, policy,
 /*
  * ISHAN VARADE
  */
-SYSCALL_DEFINE2(sched_setparam_real, pid_t, pid, struct sched_attr __user *, uattr)
+SYSCALL_DEFINE2(sched_setparam_real, pid_t, pid, struct sched_attr __user *, uattr)/*ishan*/
 {
 	//	if (policy < 0)
 	//		return -EINVAL;

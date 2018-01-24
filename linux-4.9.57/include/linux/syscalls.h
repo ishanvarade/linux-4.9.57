@@ -287,7 +287,7 @@ asmlinkage long sys_clock_nanosleep(clockid_t which_clock, int flags,
 asmlinkage long sys_nice(int increment);
 asmlinkage long sys_sched_setscheduler(pid_t pid, int policy,
 					struct sched_param __user *param);
-asmlinkage long sys_sched_setparam_real(void);
+asmlinkage long sys_sched_setparam_real(pid_t pid, struct sched_atr __user * uattr);
 asmlinkage long sys_sched_setparam(pid_t pid,
 					struct sched_param __user *param);
 asmlinkage long sys_sched_setattr(pid_t pid,

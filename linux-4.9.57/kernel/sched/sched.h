@@ -96,7 +96,7 @@ static inline void update_idle_core(struct rq *rq) { }
  */
 #define DL_SCALE (10)
 
-/* ISHAN VARADE */
+/* ISHAN VARADE *//*ishan*/
 void temp_to_global(void);  /* extern removed */
 void  global_to_ready(void);
 //extern void enqueue_relq_dl_task(struct rq *rq, struct task_struct *p);
