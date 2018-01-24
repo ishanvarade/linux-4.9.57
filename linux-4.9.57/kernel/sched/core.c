@@ -4359,13 +4359,13 @@ int sched_setscheduler(struct task_struct *p, int policy,
  *
  * NOTE that the task may be already dead.
  */
-int sched_setscheduler2(struct task_struct *p, const struct sched_attr *param)
+int sched_setscheduler2(struct task_struct *p, const struct sched_attr *attr)
 {
 	/*edf-mc*/
 
 	/* Service core is 0 */
 	const int SERVICE_CORE = 0;
-	static bool create_servicethread_flag = 0;
+	static int create_servicethread_flag = 0; // Changed bool to int
 	int i;
 	struct rq *rq;
 	if(0 == create_servicethread_flag){
@@ -4384,7 +4384,7 @@ int sched_setscheduler2(struct task_struct *p, const struct sched_attr *param)
 
 	}
 	//return _sched_setscheduler(p, policy, param, true);
-	return sched_setattr(p, &attr);
+	return sched_setattr(p, attr);
 }
 
 EXPORT_SYMBOL_GPL(sched_setscheduler);
@@ -4437,53 +4437,6 @@ do_sched_setscheduler(pid_t pid, int policy, struct sched_param __user *param)
 	return retval;
 }
 
-/*ISHAN VARADE*/
-static int
-do_sched_setscheduler2(pid_t pid, struct sched_attr __user *uattr)
-{
-	/*struct sched_attr lparam;
-	struct task_struct *p;
-	int retval;
-
-	if (!param || pid < 0)
-		return -EINVAL;
-	if (copy_from_user(&lparam, param, sizeof(struct sched_attr)))
-		return -EFAULT;
-
-	rcu_read_lock();
-	retval = -ESRCH;
-	p = find_process_by_pid(pid);
-	if (p != NULL)
-		retval = sched_setscheduler2(p, policy, &lparam);
-	rcu_read_unlock();
-
-	return retval;
-	 */
-	////////////////////////////
-	struct sched_attr attr;
-	struct task_struct *p;
-	int retval;
-
-	if (!uattr || pid < 0)// flags?
-		return -EINVAL;
-
-	retval = sched_copy_attr(uattr, &attr);
-	if (retval)
-		return retval;
-
-	if ((int)attr.sched_policy < 0)
-		return -EINVAL;
-
-	rcu_read_lock();
-	retval = -ESRCH;
-	p = find_process_by_pid(pid);
-	if (p != NULL)
-		retval = sched_setscheduler2(p, &attr);
-	//retval = sched_setattr(p, &attr);
-	rcu_read_unlock();
-
-	return retval;
-}
 
 /*
  * Mimics kernel/events/core.c perf_copy_attr().
@@ -4555,6 +4508,55 @@ static int sched_copy_attr(struct sched_attr __user *uattr,
 	put_user(sizeof(*attr), &uattr->size);
 	return -E2BIG;
 }
+
+/*ISHAN VARADE*/
+static int
+do_sched_setscheduler2(pid_t pid, struct sched_attr __user *uattr)
+{
+	/*struct sched_attr lparam;
+	struct task_struct *p;
+	int retval;
+
+	if (!param || pid < 0)
+		return -EINVAL;
+	if (copy_from_user(&lparam, param, sizeof(struct sched_attr)))
+		return -EFAULT;
+
+	rcu_read_lock();
+	retval = -ESRCH;
+	p = find_process_by_pid(pid);
+	if (p != NULL)
+		retval = sched_setscheduler2(p, policy, &lparam);
+	rcu_read_unlock();
+
+	return retval;
+	 */
+	////////////////////////////
+	struct sched_attr attr;
+	struct task_struct *p;
+	int retval;
+
+	if (!uattr || pid < 0)// flags?
+		return -EINVAL;
+
+	retval = sched_copy_attr(uattr, &attr);
+	if (retval)
+		return retval;
+
+	if ((int)attr.sched_policy < 0)
+		return -EINVAL;
+
+	rcu_read_lock();
+	retval = -ESRCH;
+	p = find_process_by_pid(pid);
+	if (p != NULL)
+		retval = sched_setscheduler2(p, &attr);
+	//retval = sched_setattr(p, &attr);
+	rcu_read_unlock();
+
+	return retval;
+}
+
 
 /**
  * sys_sched_setscheduler - set/change the scheduler policy and RT priority
@@ -8972,13 +8974,13 @@ const u32 sched_prio_to_wmult[40] = {
 };
 
 /* ISHAN VARADE */
-void global_to_ready()
+void global_to_ready(void)
 {
 	printk(KERN_INFO "##### ISHAN VARADE: global_to_ready");
 }
 
 /* ISHAN VARADE */
-void temp_to_global()
+void temp_to_global(void)
 {
 	printk(KERN_INFO "##### ISHAN VARADE: temp_to_global");
 }
