@@ -4348,6 +4348,22 @@ int sched_setscheduler(struct task_struct *p, int policy,
 	return _sched_setscheduler(p, policy, param, true);
 }
 
+
+/* ISHAN VARADE */
+int global_to_ready(void * unused)
+{
+	printk(KERN_INFO "##### ISHAN VARADE: global_to_ready");
+	return 0;
+}
+
+/* ISHAN VARADE */
+int temp_to_global(void * unused)
+{
+	printk(KERN_INFO "##### ISHAN VARADE: temp_to_global");
+	return 0;
+}
+
+
 /* ISHAN VARADE */
 /**
  * sched_setscheduler2 - change the scheduling policy and/or RT priority of a thread.
@@ -4361,14 +4377,14 @@ int sched_setscheduler(struct task_struct *p, int policy,
  */
 int sched_setscheduler2(struct task_struct *p, const struct sched_attr *attr)
 {
-	/*edf-mc*/
-
+	printk(KERN_INFO "# ISHAN VARADE: 3. sched_setscheduler2  called\n");
 	/* Service core is 0 */
 	const int SERVICE_CORE = 0;
 	static int create_servicethread_flag = 0; // Changed bool to int
 	int i;
 	struct rq *rq;
 	if(0 == create_servicethread_flag){
+		printk(KERN_INFO "# ISHAN VARADE: 3. Only One time  called\n");
 		create_servicethread_flag = 1;
 		dequeue_service_thread = kthread_rt_create(global_to_ready, NULL, "Global_to_ready_thread");
 		kthread_bind(dequeue_service_thread, SERVICE_CORE);
@@ -4532,6 +4548,8 @@ do_sched_setscheduler2(pid_t pid, struct sched_attr __user *uattr)
 	return retval;
 	 */
 	////////////////////////////
+
+	printk(KERN_INFO "# ISHAN VARADE: 2. do_sched_setscheduler2  called\n");
 	struct sched_attr attr;
 	struct task_struct *p;
 	int retval;
@@ -4598,7 +4616,7 @@ SYSCALL_DEFINE2(sched_setparam_real, pid_t, pid, struct sched_attr __user *, uat
 
 	//return do_sched_setscheduler2(pid, policy, param);
 
-	printk(KERN_INFO "# ISHAN VARADE: sched_setparam_real called");
+	printk(KERN_INFO "# ISHAN VARADE: 1. sched_setparam_real systemcall called\n");
 
 	return do_sched_setscheduler2(pid, uattr);
 }
@@ -8972,15 +8990,3 @@ const u32 sched_prio_to_wmult[40] = {
 		/*  10 */  39045157,  49367440,  61356676,  76695844,  95443717,
 		/*  15 */ 119304647, 148102320, 186737708, 238609294, 286331153,
 };
-
-/* ISHAN VARADE */
-void global_to_ready(void)
-{
-	printk(KERN_INFO "##### ISHAN VARADE: global_to_ready");
-}
-
-/* ISHAN VARADE */
-void temp_to_global(void)
-{
-	printk(KERN_INFO "##### ISHAN VARADE: temp_to_global");
-}

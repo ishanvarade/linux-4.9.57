@@ -10,6 +10,12 @@ struct task_struct *kthread_create_on_node(int (*threadfn)(void *data),
 					   int node,
 					   const char namefmt[], ...);
 
+
+/* ISHAN VARADE */
+struct task_struct *kthread_rt_create_on_node(int (*threadfn)(void *data),
+					   void *data, int node,
+					   const char namefmt[],
+					   ...);
 /**
  * kthread_create - create a kthread on the current node
  * @threadfn: the function to run in the thread
