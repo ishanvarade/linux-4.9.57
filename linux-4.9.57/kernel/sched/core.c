@@ -4558,7 +4558,7 @@ do_sched_setscheduler2(pid_t pid, struct sched_attr __user *uattr)
 		return -EINVAL;
 
 	retval = sched_copy_attr(uattr, &attr);
-	printk(KERN_INFO "# ISHAN VARADE: attr: policy: %d, deadline: %ld, %ld\n", attr.sched_policy, attr.sched_deadline, attr.sched_runtime);
+	//printk(KERN_INFO "# ISHAN VARADE: attr: policy: %d, deadline: %ld, %ld\n", attr.sched_policy, attr.sched_deadline, attr.sched_runtime);
 
 	if (retval)
 		return retval;
