@@ -100,6 +100,8 @@ DEFINE_MUTEX(sched_domains_mutex);
 DEFINE_PER_CPU_SHARED_ALIGNED(struct rq, runqueues);
 
 static void update_rq_clock_task(struct rq *rq, s64 delta);
+static int get_user_cpu_mask(unsigned long __user *user_mask_ptr, unsigned len,
+		struct cpumask *new_mask);
 
 void update_rq_clock(struct rq *rq)
 {
@@ -4577,6 +4579,43 @@ do_sched_setscheduler2(pid_t pid, struct sched_attr __user *uattr)
 	return retval;
 }
 
+/*
+ * ISHAN VARADE
+ */
+static int
+do_sched_release_init(pid_t pid, struct timespec __user* rqtp, unsigned int len, unsigned long __user *user_mask_ptr)
+{
+	//printk(KERN_ERR "SCHED_IS: Processing sched_release");
+	struct task_struct *p;
+	struct timespec tu;
+	if(copy_from_user(&tu, rqtp, sizeof(tu)))
+		return -EFAULT;
+	if (!timespec_valid(&tu))
+		return -EINVAL;
+	p = find_process_by_pid(pid);
+	struct sched_dl_entity *dl_se = &p->dl;
+	cpumask_var_t new_mask;
+	int retval;
+
+	if (!alloc_cpumask_var(&new_mask, GFP_KERNEL))
+	{
+		printk(KERN_INFO "# ISHAN VARADE: do_sched_release_init ENOMEM Out of memory\n");
+		return -ENOMEM;
+	}
+
+	retval = get_user_cpu_mask(user_mask_ptr, len, new_mask);
+	if(retval == 0)
+		sched_setaffinity(pid, new_mask);
+	else
+		printk(KERN_ERR "ISHAN VARADE: do_sched_release_init() affinity may not be set");
+	free_cpumask_var(new_mask);
+
+
+	printk(KERN_ERR "SRI SRI: sched_release_init completed\n");
+	//return hrtimer_sched_release(&tu, rmtp, HRTIMER_MODE_REL, CLOCK_MONOTONIC, p);
+
+}
+
 
 /**
  * sys_sched_setscheduler - set/change the scheduler policy and RT priority
@@ -4623,6 +4662,14 @@ SYSCALL_DEFINE2(sched_setparam_real, pid_t, pid, struct sched_attr __user *, uat
 	return do_sched_setscheduler2(pid, uattr);
 }
 
+/*
+ * ISHAN VARADE
+ */
+/** task release system for sched_is* **/
+SYSCALL_DEFINE4(sched_do_job_release, pid_t, pid, struct timespec __user*, rqtp, unsigned int, len, unsigned long __user *, user_mask_ptr)
+{
+	return do_sched_release_init(pid, rqtp, len, user_mask_ptr);
+}
 /**
  * sys_sched_setparam - set/change the RT priority of a thread
  * @pid: the pid in question.

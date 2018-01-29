@@ -289,6 +289,8 @@ asmlinkage long sys_sched_setscheduler(pid_t pid, int policy,
 					struct sched_param __user *param);
 asmlinkage long sys_sched_setparam_real(pid_t  pid,
 					struct sched_attr  __user *  uattr);
+asmlinkage long sys_sched_do_job_release(pid_t pid, struct timespec __user* rqtp,
+		unsigned int len, unsigned long __user * user_mask_ptr);
 asmlinkage long sys_sched_setparam(pid_t pid,
 					struct sched_param __user *param);
 asmlinkage long sys_sched_setattr(pid_t pid,
