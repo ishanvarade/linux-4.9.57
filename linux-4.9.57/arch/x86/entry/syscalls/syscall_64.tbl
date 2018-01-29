@@ -339,7 +339,6 @@
 330	common	pkey_alloc		sys_pkey_alloc
 331	common	pkey_free		sys_pkey_free
 332 common sched_setparam_real		sys_sched_setparam_real
-
 333 common sched_do_job_release		sys_sched_do_job_release
 
 #
