@@ -4563,6 +4563,7 @@ do_sched_setscheduler2(pid_t pid, struct sched_attr __user *uattr)
 	retval = sched_copy_attr(uattr, &attr);
 //	printk(KERN_INFO "# ISHAN VARADE: attr: policy: %d, deadline: %ld, %ld\n", attr.sched_policy, attr.sched_deadline, attr.sched_runtime);
 	printk(KERN_INFO "# ISHAN VARADE: 2.attr: policy: %d\n", attr.sched_policy);
+	printk(KERN_INFO "# ISHAN VARADE: 2.uattr: policy: %d\n", uattr->sched_policy);
 	if (retval)
 		return retval;
 
@@ -4589,12 +4590,13 @@ do_sched_release_init(pid_t pid, struct timespec __user* rqtp, unsigned int len,
 	//printk(KERN_ERR "SCHED_IS: Processing sched_release");
 	struct task_struct *p;
 	struct timespec tu;
+	struct sched_dl_entity *dl_se;
 	if(copy_from_user(&tu, rqtp, sizeof(tu)))
 		return -EFAULT;
 	if (!timespec_valid(&tu))
 		return -EINVAL;
 	p = find_process_by_pid(pid);
-	struct sched_dl_entity *dl_se = &p->dl;
+	dl_se = &p->dl;
 	cpumask_var_t new_mask;
 	int retval;
 
