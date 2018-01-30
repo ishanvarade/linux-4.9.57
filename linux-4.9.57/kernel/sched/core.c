@@ -4379,12 +4379,12 @@ int temp_to_global(void * unused)
  */
 int sched_setscheduler2(struct task_struct *p, const struct sched_attr *attr)
 {
-	printk(KERN_INFO "# ISHAN VARADE: 3. sched_setscheduler2  called\n");
 	/* Service core is 0 */
 	const int SERVICE_CORE = 0;
 	static int create_servicethread_flag = 0; // Changed bool to int
 	int i;
 	struct rq *rq;
+	printk(KERN_INFO "# ISHAN VARADE: 3. sched_setscheduler2  called\n");
 	if(0 == create_servicethread_flag){
 		printk(KERN_INFO "# ISHAN VARADE: 3. Only One time  called\n");
 		create_servicethread_flag = 1;
