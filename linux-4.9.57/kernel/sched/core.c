@@ -4552,10 +4552,10 @@ do_sched_setscheduler2(pid_t pid, struct sched_attr __user *uattr)
 	 */
 	////////////////////////////
 
-	printk(KERN_INFO "# ISHAN VARADE: 2. do_sched_setscheduler2  called\n");
 	struct sched_attr attr;
 	struct task_struct *p;
 	int retval;
+	printk(KERN_INFO "# ISHAN VARADE: 2. do_sched_setscheduler2  called\n");
 
 	if (!uattr || pid < 0)// flags?
 		return -EINVAL;
