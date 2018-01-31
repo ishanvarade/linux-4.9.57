@@ -4660,6 +4660,8 @@ SYSCALL_DEFINE2(sched_setparam_real, pid_t, pid, struct sched_attr __user *, uat
 	//return do_sched_setscheduler2(pid, policy, param);
 
 	printk(KERN_INFO "# ISHAN VARADE: 1. sched_setparam_real systemcall called\n");
+	printf(KERN_INFO "# ISHAN VARADE: UATTR: %d\n", uattr -> sched_policy);
+	printf(KERN_INFO "# ISHAN VARADE: PID: %d\n", pid);
 
 	return do_sched_setscheduler2(pid, uattr);
 }
