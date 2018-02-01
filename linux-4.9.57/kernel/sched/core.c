@@ -4561,7 +4561,7 @@ do_sched_setscheduler2(pid_t pid, struct sched_attr __user *uattr)
 		return -EINVAL;
 
 	retval = sched_copy_attr(uattr, &attr);
-//	printk(KERN_INFO "# ISHAN VARADE: attr: policy: %d, deadline: %ld, %ld\n", attr.sched_policy, attr.sched_deadline, attr.sched_runtime);
+	//	printk(KERN_INFO "# ISHAN VARADE: attr: policy: %d, deadline: %ld, %ld\n", attr.sched_policy, attr.sched_deadline, attr.sched_runtime);
 	printk(KERN_INFO "# ISHAN VARADE: 2.attr: policy: %d\n", attr.sched_policy);
 	if (retval)
 		return retval;
@@ -4590,14 +4590,14 @@ do_sched_release_init(pid_t pid, struct timespec __user* rqtp, unsigned int len,
 	struct task_struct *p;
 	struct timespec tu;
 	struct sched_dl_entity *dl_se;
+	cpumask_var_t new_mask;
+	int retval;
 	if(copy_from_user(&tu, rqtp, sizeof(tu)))
 		return -EFAULT;
 	if (!timespec_valid(&tu))
 		return -EINVAL;
 	p = find_process_by_pid(pid);
 	dl_se = &p->dl;
-	cpumask_var_t new_mask;
-	int retval;
 
 	if (!alloc_cpumask_var(&new_mask, GFP_KERNEL))
 	{
@@ -4615,6 +4615,7 @@ do_sched_release_init(pid_t pid, struct timespec __user* rqtp, unsigned int len,
 
 	printk(KERN_ERR "SRI SRI: sched_release_init completed\n");
 	//return hrtimer_sched_release(&tu, rmtp, HRTIMER_MODE_REL, CLOCK_MONOTONIC, p);
+	return 0;
 
 }
 
@@ -4642,28 +4643,11 @@ SYSCALL_DEFINE3(sched_setscheduler, pid_t, pid, int, policy,
  */
 SYSCALL_DEFINE2(sched_setparam_real, pid_t, pid, struct sched_attr __user *, uattr)/*ishan*/
 {
-	//	if (policy < 0)
-	//		return -EINVAL;
-
-	//	if ((int)attr.sched_policy < 0)
-	//			return -EINVAL;
-
-
-	/*
-	struct task_struct *proces;
-	for_each_process(proces)
-	{
-		printk("Process: %s\n, PID: %ld\n", proces->comm, (long)proces->pid, (long)proces->state, (long)proces->state, (long)proces->prio)
-	}
-	 */
-
-	//return do_sched_setscheduler2(pid, policy, param);
-
 	printk(KERN_INFO "# ISHAN VARADE: 1. sched_setparam_real systemcall called\n");
-	printk(KERN_INFO "# ISHAN VARADE: UATTR: %d\n", uattr -> sched_policy);
-	printk(KERN_INFO "# ISHAN VARADE: PID: %d\n", pid);
+//	printk(KERN_INFO "# ISHAN VARADE: UATTR: %d\n", uattr -> sched_policy);
+//	printk(KERN_INFO "# ISHAN VARADE: PID: %d\n", pid);
 
-	return do_sched_setscheduler2(pid, uattr);
+	//return do_sched_setscheduler2(pid, uattr);
 }
 
 /*
