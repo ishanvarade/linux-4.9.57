@@ -4643,11 +4643,40 @@ SYSCALL_DEFINE3(sched_setscheduler, pid_t, pid, int, policy,
  */
 SYSCALL_DEFINE2(sched_setparam_real, pid_t, pid, struct sched_attr __user *, uattr)/*ishan*/
 {
-	printk(KERN_INFO "# ISHAN VARADE: 1. sched_setparam_real systemcall called\n");
-//	printk(KERN_INFO "# ISHAN VARADE: UATTR: %d\n", uattr -> sched_policy);
-//	printk(KERN_INFO "# ISHAN VARADE: PID: %d\n", pid);
+	//	printk(KERN_INFO "# ISHAN VARADE: UATTR: %d\n", uattr -> sched_policy);
+	//	printk(KERN_INFO "# ISHAN VARADE: PID: %d\n", pid);
 
 	//return do_sched_setscheduler2(pid, uattr);
+	/////////////////////////////////////////////
+
+	struct sched_attr attr;
+	struct task_struct *p;
+	int retval;
+
+	printk(KERN_INFO "# ISHAN VARADE: 1. sched_setparam_real systemcall called\n");
+	printk(KERN_INFO "# ISHAN VARADE: 2. do_sched_setscheduler2  called\n");
+
+	if (!uattr || pid < 0)// flags?
+		return -EINVAL;
+
+	retval = sched_copy_attr(uattr, &attr);
+	//printk(KERN_INFO "# ISHAN VARADE: attr: policy: %d, deadline: %ld, %ld\n", attr.sched_policy, attr.sched_deadline, attr.sched_runtime);
+	printk(KERN_INFO "# ISHAN VARADE: 2.attr: policy: %d\n", attr.sched_policy);
+	if (retval)
+		return retval;
+
+	if ((int)attr.sched_policy < 0)
+		return -EINVAL;
+
+	rcu_read_lock();
+	retval = -ESRCH;
+	p = find_process_by_pid(pid);
+	if (p != NULL)
+		retval = sched_setscheduler2(p, &attr);
+	//retval = sched_setattr(p, &attr);
+	rcu_read_unlock();
+
+	return retval;
 }
 
 /*
