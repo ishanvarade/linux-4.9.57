@@ -4640,15 +4640,10 @@ SYSCALL_DEFINE3(sched_setscheduler, pid_t, pid, int, policy,
 
 /*
  * ISHAN VARADE
+ * May be I change to simple input like WCET and DEADLINE
  */
 SYSCALL_DEFINE2(sched_setparam_real, pid_t, pid, struct sched_attr __user *, uattr)/*ishan*/
 {
-	//	printk(KERN_INFO "# ISHAN VARADE: UATTR: %d\n", uattr -> sched_policy);
-	//	printk(KERN_INFO "# ISHAN VARADE: PID: %d\n", pid);
-
-	//return do_sched_setscheduler2(pid, uattr);
-	/////////////////////////////////////////////
-
 	struct sched_attr attr;
 	struct task_struct *p;
 	int retval;
@@ -4660,7 +4655,6 @@ SYSCALL_DEFINE2(sched_setparam_real, pid_t, pid, struct sched_attr __user *, uat
 		return -EINVAL;
 
 	retval = sched_copy_attr(uattr, &attr);
-	//printk(KERN_INFO "# ISHAN VARADE: attr: policy: %d, deadline: %ld, %ld\n", attr.sched_policy, attr.sched_deadline, attr.sched_runtime);
 	printk(KERN_INFO "# ISHAN VARADE: 2.attr: policy: %d\n", attr.sched_policy);
 	if (retval)
 		return retval;
