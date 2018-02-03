@@ -4134,6 +4134,7 @@ static int __sched_setscheduler(struct task_struct *p,
 				return -EPERM;
 		}
 
+		printk(KERN_INFO "# ISHAN VARADE: 2. ERROR DIDN'T EFFECT YET:PID = %d\n", p -> pid);
 		if (rt_policy(policy)) {
 			unsigned long rlim_rtprio =
 					task_rlimit(p, RLIMIT_RTPRIO);
@@ -4142,10 +4143,13 @@ static int __sched_setscheduler(struct task_struct *p,
 			if (policy != p->policy && !rlim_rtprio)
 				return -EPERM;
 
+			printk(KERN_INFO "# ISHAN VARADE: 3. ERROR DIDN'T EFFECT YET:PID = %d\n", p -> pid);
 			/* can't increase priority */
 			if (attr->sched_priority > p->rt_priority &&
 					attr->sched_priority > rlim_rtprio)
 				return -EPERM;
+
+			printk(KERN_INFO "# ISHAN VARADE: 4. ERROR DIDN'T EFFECT YET:PID = %d\n", p -> pid);
 		}
 
 		/*
@@ -4157,6 +4161,7 @@ static int __sched_setscheduler(struct task_struct *p,
 		if (dl_policy(policy))
 			return -EPERM;
 
+		printk(KERN_INFO "# ISHAN VARADE: 5. ERROR DIDN'T EFFECT YET:PID = %d\n", p -> pid);
 		/*
 		 * Treat SCHED_IDLE as nice 20. Only allow a switch to
 		 * SCHED_NORMAL if the RLIMIT_NICE would normally permit it.
@@ -4181,7 +4186,6 @@ static int __sched_setscheduler(struct task_struct *p,
 			return retval;
 	}
 
-	printk(KERN_INFO "# ISHAN VARADE: 2. ERROR DIDN'T EFFECT YET:PID = %d\n", p -> pid);
 
 	/*
 	 * make sure no PI-waiters arrive (or leave) while we are
@@ -4199,7 +4203,6 @@ static int __sched_setscheduler(struct task_struct *p,
 		task_rq_unlock(rq, p, &rf);
 		return -EINVAL;
 	}
-	printk(KERN_INFO "# ISHAN VARADE: 3. ERROR DIDN'T EFFECT YET:PID = %d\n", p -> pid);
 	/*
 	 * If not changing anything there's no need to proceed further,
 	 * but store a possible modification of reset_on_fork.
