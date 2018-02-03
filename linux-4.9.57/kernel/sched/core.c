@@ -4408,8 +4408,10 @@ int sched_setscheduler2(struct task_struct *p, const struct sched_attr *attr)
 
 EXPORT_SYMBOL_GPL(sched_setscheduler);
 
+/*Ishan Varade */
 int sched_setattr(struct task_struct *p, const struct sched_attr *attr)
 {
+	printf(KERN_INFO "# ISHAN VARADE: ATTR.Policy: %d\n", attr -> sched_policy);
 	return __sched_setscheduler(p, attr, true, true);
 }
 EXPORT_SYMBOL_GPL(sched_setattr);
