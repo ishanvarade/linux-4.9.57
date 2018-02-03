@@ -4179,7 +4179,7 @@ static int __sched_setscheduler(struct task_struct *p,
 
 
 	/* Ishan Varade */
-	printk(KERN_INFO "# ISHAN VARADE: ERROR DIDN'T EFFECT YET\n");
+	printk(KERN_INFO "# ISHAN VARADE: ERROR DIDN'T EFFECT YET:PID = %d\n", p -> pid);
 
 	/*
 	 * make sure no PI-waiters arrive (or leave) while we are
