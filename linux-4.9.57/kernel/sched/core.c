@@ -4122,7 +4122,7 @@ static int __sched_setscheduler(struct task_struct *p,
 
 
 	/* Ishan Varade */
-	printk(KERN_INFO "# ISHAN VARADE: ERROR DIDN'T EFFECT YET:PID = %d\n", p -> pid);
+	printk(KERN_INFO "# ISHAN VARADE: 1. ERROR DIDN'T EFFECT YET:PID = %d\n", p -> pid);
 
 	/*
 	 * Allow unprivileged RT tasks to decrease priority:
@@ -4181,7 +4181,7 @@ static int __sched_setscheduler(struct task_struct *p,
 			return retval;
 	}
 
-
+	printk(KERN_INFO "# ISHAN VARADE: 2. ERROR DIDN'T EFFECT YET:PID = %d\n", p -> pid);
 
 	/*
 	 * make sure no PI-waiters arrive (or leave) while we are
@@ -4199,7 +4199,7 @@ static int __sched_setscheduler(struct task_struct *p,
 		task_rq_unlock(rq, p, &rf);
 		return -EINVAL;
 	}
-
+	printk(KERN_INFO "# ISHAN VARADE: 3. ERROR DIDN'T EFFECT YET:PID = %d\n", p -> pid);
 	/*
 	 * If not changing anything there's no need to proceed further,
 	 * but store a possible modification of reset_on_fork.
@@ -4282,6 +4282,7 @@ static int __sched_setscheduler(struct task_struct *p,
 		if (new_effective_prio == oldprio)
 			queue_flags &= ~DEQUEUE_MOVE;
 	}
+	printk(KERN_INFO "# ISHAN VARADE: 4. ERROR DIDN'T EFFECT YET:PID = %d\n", p -> pid);
 
 	queued = task_on_rq_queued(p);
 	running = task_current(rq, p);
