@@ -4120,6 +4120,10 @@ static int __sched_setscheduler(struct task_struct *p,
 			(rt_policy(policy) != (attr->sched_priority != 0)))
 		return -EINVAL;
 
+
+	/* Ishan Varade */
+	printk(KERN_INFO "# ISHAN VARADE: ERROR DIDN'T EFFECT YET:PID = %d\n", p -> pid);
+
 	/*
 	 * Allow unprivileged RT tasks to decrease priority:
 	 */
@@ -4178,8 +4182,6 @@ static int __sched_setscheduler(struct task_struct *p,
 	}
 
 
-	/* Ishan Varade */
-	printk(KERN_INFO "# ISHAN VARADE: ERROR DIDN'T EFFECT YET:PID = %d\n", p -> pid);
 
 	/*
 	 * make sure no PI-waiters arrive (or leave) while we are
