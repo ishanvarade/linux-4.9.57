@@ -4083,7 +4083,7 @@ static int __sched_setscheduler(struct task_struct *p,
 {
 
 	/* Ishan Varade */
-	printk(KERN_INFO "# ISHAN VARADE: 0. ERROR DIDN'T EFFECT YET:PID = %d\n", p -> pid);
+	printk(KERN_INFO "# ISHAN VARADE: 0. ERROR DIDN'T EFFECT YET:PID = %d, POLICY=%d\n", p -> pid, attr->sched_policy);
 	int newprio = dl_policy(attr->sched_policy) ? MAX_DL_PRIO - 1 :
 			MAX_RT_PRIO - 1 - attr->sched_priority;
 	int retval, oldprio, oldpolicy = -1, queued, running;
@@ -4106,10 +4106,17 @@ static int __sched_setscheduler(struct task_struct *p,
 
 		if (!valid_policy(policy))
 			return -EINVAL;
+
+		/* Ishan Varade */
+		printk(KERN_INFO "# ISHAN VARADE: 0.1. ERROR DIDN'T EFFECT YET:PID = %d\n", p -> pid);
 	}
 
 	if (attr->sched_flags & ~(SCHED_FLAG_RESET_ON_FORK))
 		return -EINVAL;
+
+
+	/* Ishan Varade */
+	printk(KERN_INFO "# ISHAN VARADE: 0.2. ERROR DIDN'T EFFECT YET:PID = %d\n", p -> pid);
 
 	/*
 	 * Valid priorities for SCHED_FIFO and SCHED_RR are
@@ -4119,6 +4126,9 @@ static int __sched_setscheduler(struct task_struct *p,
 	if ((p->mm && attr->sched_priority > MAX_USER_RT_PRIO-1) ||
 			(!p->mm && attr->sched_priority > MAX_RT_PRIO-1))
 		return -EINVAL;
+
+	/* Ishan Varade */
+	printk(KERN_INFO "# ISHAN VARADE: 0.3. ERROR DIDN'T EFFECT YET:PID = %d\n", p -> pid);
 	if ((dl_policy(policy) && !__checkparam_dl(attr)) ||
 			(rt_policy(policy) != (attr->sched_priority != 0)))
 		return -EINVAL;
@@ -4664,6 +4674,8 @@ SYSCALL_DEFINE2(sched_setparam_real, pid_t, pid, struct sched_attr __user *, uat
 	struct task_struct *p;
 	int retval;
 
+
+	printk(KERN_INFO "# ISHAN VARADE: ########################################\n");
 	printk(KERN_INFO "# ISHAN VARADE: 1. sched_setparam_real systemcall called\n");
 	printk(KERN_INFO "# ISHAN VARADE: 2. do_sched_setscheduler2  called\n");
 
