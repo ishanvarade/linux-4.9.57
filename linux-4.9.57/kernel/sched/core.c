@@ -4081,9 +4081,6 @@ static int __sched_setscheduler(struct task_struct *p,
 		const struct sched_attr *attr,
 		bool user, bool pi)
 {
-
-	/* Ishan Varade */
-	printk(KERN_INFO "# ISHAN VARADE: 0. ERROR DIDN'T EFFECT YET:PID = %d, POLICY=%d\n", p -> pid, attr->sched_policy);
 	int newprio = dl_policy(attr->sched_policy) ? MAX_DL_PRIO - 1 :
 			MAX_RT_PRIO - 1 - attr->sched_priority;
 	int retval, oldprio, oldpolicy = -1, queued, running;
@@ -4106,17 +4103,10 @@ static int __sched_setscheduler(struct task_struct *p,
 
 		if (!valid_policy(policy))
 			return -EINVAL;
-
-		/* Ishan Varade */
-		printk(KERN_INFO "# ISHAN VARADE: 0.1. ERROR DIDN'T EFFECT YET:PID = %d\n", p -> pid);
 	}
 
 	if (attr->sched_flags & ~(SCHED_FLAG_RESET_ON_FORK))
 		return -EINVAL;
-
-
-	/* Ishan Varade */
-	printk(KERN_INFO "# ISHAN VARADE: 0.2. ERROR DIDN'T EFFECT YET:PID = %d\n", p -> pid);
 
 	/*
 	 * Valid priorities for SCHED_FIFO and SCHED_RR are
@@ -4126,16 +4116,9 @@ static int __sched_setscheduler(struct task_struct *p,
 	if ((p->mm && attr->sched_priority > MAX_USER_RT_PRIO-1) ||
 			(!p->mm && attr->sched_priority > MAX_RT_PRIO-1))
 		return -EINVAL;
-
-	/* Ishan Varade */
-	printk(KERN_INFO "# ISHAN VARADE: 0.3. ERROR DIDN'T EFFECT YET:PID = %d\n", p -> pid);
 	if ((dl_policy(policy) && !__checkparam_dl(attr)) ||
 			(rt_policy(policy) != (attr->sched_priority != 0)))
 		return -EINVAL;
-
-
-	/* Ishan Varade */
-	printk(KERN_INFO "# ISHAN VARADE: 1. ERROR DIDN'T EFFECT YET:PID = %d\n", p -> pid);
 
 	/*
 	 * Allow unprivileged RT tasks to decrease priority:
@@ -4147,7 +4130,6 @@ static int __sched_setscheduler(struct task_struct *p,
 				return -EPERM;
 		}
 
-		printk(KERN_INFO "# ISHAN VARADE: 2. ERROR DIDN'T EFFECT YET:PID = %d\n", p -> pid);
 		if (rt_policy(policy)) {
 			unsigned long rlim_rtprio =
 					task_rlimit(p, RLIMIT_RTPRIO);
@@ -4156,16 +4138,12 @@ static int __sched_setscheduler(struct task_struct *p,
 			if (policy != p->policy && !rlim_rtprio)
 				return -EPERM;
 
-			printk(KERN_INFO "# ISHAN VARADE: 3. ERROR DIDN'T EFFECT YET:PID = %d\n", p -> pid);
 			/* can't increase priority */
 			if (attr->sched_priority > p->rt_priority &&
 					attr->sched_priority > rlim_rtprio)
 				return -EPERM;
-
-			printk(KERN_INFO "# ISHAN VARADE: 4. ERROR DIDN'T EFFECT YET:PID = %d\n", p -> pid);
 		}
 
-		printk(KERN_INFO "# ISHAN VARADE: 4.1. ERROR DIDN'T EFFECT YET:PID = %d\n", p -> pid);
 		/*
 		 * Can't set/change SCHED_DEADLINE policy at all for now
 		 * (safest behavior); in the future we would like to allow
@@ -4175,7 +4153,6 @@ static int __sched_setscheduler(struct task_struct *p,
 		if (dl_policy(policy))
 			return -EPERM;
 
-		printk(KERN_INFO "# ISHAN VARADE: 5. ERROR DIDN'T EFFECT YET:PID = %d\n", p -> pid);
 		/*
 		 * Treat SCHED_IDLE as nice 20. Only allow a switch to
 		 * SCHED_NORMAL if the RLIMIT_NICE would normally permit it.
@@ -4200,7 +4177,6 @@ static int __sched_setscheduler(struct task_struct *p,
 			return retval;
 	}
 
-
 	/*
 	 * make sure no PI-waiters arrive (or leave) while we are
 	 * changing the priority of the task:
@@ -4217,6 +4193,7 @@ static int __sched_setscheduler(struct task_struct *p,
 		task_rq_unlock(rq, p, &rf);
 		return -EINVAL;
 	}
+
 	/*
 	 * If not changing anything there's no need to proceed further,
 	 * but store a possible modification of reset_on_fork.
@@ -4299,7 +4276,6 @@ static int __sched_setscheduler(struct task_struct *p,
 		if (new_effective_prio == oldprio)
 			queue_flags &= ~DEQUEUE_MOVE;
 	}
-	printk(KERN_INFO "# ISHAN VARADE: 4. ERROR DIDN'T EFFECT YET:PID = %d\n", p -> pid);
 
 	queued = task_on_rq_queued(p);
 	running = task_current(rq, p);
@@ -4655,7 +4631,7 @@ do_sched_release_init(pid_t pid, struct timespec __user* rqtp, unsigned int len,
  * Return: 0 on success. An error code otherwise.
  */
 SYSCALL_DEFINE3(sched_setscheduler, pid_t, pid, int, policy,
-		struct sched_param __user *, param)
+		struct sched_para3m __user *, param)
 {
 	/* negative values for policy are not valid */
 	if (policy < 0)
@@ -4673,7 +4649,6 @@ SYSCALL_DEFINE2(sched_setparam_real, pid_t, pid, struct sched_attr __user *, uat
 	struct sched_attr attr;
 	struct task_struct *p;
 	int retval;
-
 
 	printk(KERN_INFO "# ISHAN VARADE: ########################################\n");
 	printk(KERN_INFO "# ISHAN VARADE: 1. sched_setparam_real systemcall called\n");
