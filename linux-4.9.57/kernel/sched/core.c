@@ -4631,7 +4631,7 @@ do_sched_release_init(pid_t pid, struct timespec __user* rqtp, unsigned int len,
  * Return: 0 on success. An error code otherwise.
  */
 SYSCALL_DEFINE3(sched_setscheduler, pid_t, pid, int, policy,
-		struct sched_para3m __user *, param)
+		struct sched_param __user *, param)
 {
 	/* negative values for policy are not valid */
 	if (policy < 0)
