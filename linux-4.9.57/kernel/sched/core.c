@@ -25,7 +25,7 @@
  *  2007-11-29  RT balancing improvements by Steven Rostedt, Gregory Haskins,
  *              Thomas Gleixner, Mike Kravetz
  */
-
+#include <stdio.h>
 #include <linux/kasan.h>
 #include <linux/mm.h>
 #include <linux/module.h>
@@ -4613,7 +4613,7 @@ do_sched_release_init(pid_t pid, struct timespec __user* rqtp, unsigned int len,
 	free_cpumask_var(new_mask);
 
 
-	printk(KERN_ERR "SRI SRI: sched_release_init completed\n");
+	printk(KERN_ERR "ISHAN VARADE: sched_release_init completed\n");
 	//return hrtimer_sched_release(&tu, rmtp, HRTIMER_MODE_REL, CLOCK_MONOTONIC, p);
 	return 0;
 
@@ -4648,6 +4648,7 @@ SYSCALL_DEFINE2(sched_setparam_real, pid_t, pid, struct sched_attr __user *, uat
 	struct task_struct *p;
 	int retval;
 
+	printf("\nMY NAME IS PIYUSH VARADE\n");
 	printk(KERN_INFO "# ISHAN VARADE: ########################################\n");
 	printk(KERN_INFO "# ISHAN VARADE: 1. sched_setparam_real systemcall called\n");
 	printk(KERN_INFO "# ISHAN VARADE: 2. do_sched_setscheduler2  called\n");
