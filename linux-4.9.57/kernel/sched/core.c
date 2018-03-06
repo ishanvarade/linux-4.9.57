@@ -4583,21 +4583,40 @@ do_sched_setscheduler2(pid_t pid, struct sched_attr __user *uattr)
 /*
  * ISHAN VARADE
  */
+static enum hrtimer_restart restart_hrtimer_callback(struct hrtimer *timer)
+{
+	printf(KERN_INFO "#ISHAN VARADE: HR_timer test\n");
+	return HRTIMER_RESTART;
+}
+
+/*
+ * ISHAN VARADE
+ */
+void sched_set_restart_timer(struct task_struct *task, struct hrtimer *timer, struct timespec *rqtp){
+        hrtimer_init_on_stack(timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
+        hrtimer_set_expires_range_ns(timer, timespec_to_ktime(*rqtp), 0);
+        timer->function = restart_hrtimer_callback;
+        hrtimer_start_expires(timer, HRTIMER_MODE_REL);
+}
+
+/*
+ * ISHAN VARADE
+ */
 static int
 do_sched_release_init(pid_t pid, struct timespec __user* rqtp, unsigned int len, unsigned long __user *user_mask_ptr)
 {
 	//printk(KERN_ERR "SCHED_IS: Processing sched_release");
 	struct task_struct *p;
 	struct timespec tu;
-	struct sched_dl_entity *dl_se;
+	struct sched_dl_entity *dl_se; // Need to Remove
 	cpumask_var_t new_mask;
-	int retval;
-	if(copy_from_user(&tu, rqtp, sizeof(tu)))
+	int retval = 0;
+/*	if(copy_from_user(&tu, rqtp, sizeof(tu)))
 		return -EFAULT;
 	if (!timespec_valid(&tu))
 		return -EINVAL;
 	p = find_process_by_pid(pid);
-	dl_se = &p->dl;
+	dl_se = &p->dl; // Need to Remove
 
 	if (!alloc_cpumask_var(&new_mask, GFP_KERNEL))
 	{
@@ -4606,16 +4625,38 @@ do_sched_release_init(pid_t pid, struct timespec __user* rqtp, unsigned int len,
 	}
 
 	retval = get_user_cpu_mask(user_mask_ptr, len, new_mask);
-	if(retval == 0)
+	if(!retval) //(retval == 0)
 		sched_setaffinity(pid, new_mask);
 	else
+	{
 		printk(KERN_ERR "ISHAN VARADE: do_sched_release_init() affinity may not be set");
+		return retval;
+	}
 	free_cpumask_var(new_mask);
 
-
+*/
 	printk(KERN_ERR "ISHAN VARADE: sched_release_init completed\n");
 	//return hrtimer_sched_release(&tu, rmtp, HRTIMER_MODE_REL, CLOCK_MONOTONIC, p);
-	return 0;
+
+	//Second part to set the release time of Task
+    //struct task_struct *p;
+    //struct timespec tu;
+    //struct hrtimer_sleeper t;
+    //int ret;
+    //ktime_t ktime_rperiod;
+
+    if(copy_from_user(&tu, rqtp, sizeof(tu)))
+            return -EFAULT;
+    if (!timespec_valid(&tu))
+            return -EINVAL;
+
+    p = find_process_by_pid(pid);
+
+    sched_set_restart_timer(p, &p->timer, &tu);
+
+    //return ret;
+	/////////////////////////////////////////////
+	return retval;
 
 }
 
@@ -4683,6 +4724,7 @@ SYSCALL_DEFINE4(sched_do_job_release, pid_t, pid, struct timespec __user*, rqtp,
 	printk(KERN_INFO "# ISHAN VARADE: 20. sched_do_job_release systemcall called\n");
 	return do_sched_release_init(pid, rqtp, len, user_mask_ptr);
 }
+
 /**
  * sys_sched_setparam - set/change the RT priority of a thread
  * @pid: the pid in question.
