@@ -4611,6 +4611,7 @@ do_sched_release_init(pid_t pid, struct timespec __user* rqtp, unsigned int len,
 	struct sched_dl_entity *dl_se; // Need to Remove
 	cpumask_var_t new_mask;
 	int retval = 0;
+	// undo retval = 0;
 /*	if(copy_from_user(&tu, rqtp, sizeof(tu)))
 		return -EFAULT;
 	if (!timespec_valid(&tu))
