@@ -4605,6 +4605,7 @@ void sched_set_restart_timer(struct task_struct *task, struct hrtimer *timer, st
 static int
 do_sched_release_init(pid_t pid, struct timespec __user* rqtp, unsigned int len, unsigned long __user *user_mask_ptr)
 {
+	//
 	//printk(KERN_ERR "SCHED_IS: Processing sched_release");
 	struct task_struct *p;
 	struct timespec tu;
