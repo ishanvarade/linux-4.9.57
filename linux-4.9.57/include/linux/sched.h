@@ -1978,6 +1978,9 @@ struct task_struct {
  *
  * Do not put anything below here!
  */
+
+	// ISHAN VARADE
+	struct hrtimer timer;
 };
 
 #ifdef CONFIG_ARCH_WANTS_DYNAMIC_TASK_STRUCT
