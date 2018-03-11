@@ -1970,6 +1970,11 @@ struct task_struct {
 	/* A live task holds one reference. */
 	atomic_t stack_refcount;
 #endif
+
+	// ISHAN VARADE
+		struct hrtimer timer;
+
+
 /* CPU-specific state of this task */
 	struct thread_struct thread;
 /*
@@ -1979,8 +1984,7 @@ struct task_struct {
  * Do not put anything below here!
  */
 
-	// ISHAN VARADE
-	struct hrtimer timer;
+
 };
 
 #ifdef CONFIG_ARCH_WANTS_DYNAMIC_TASK_STRUCT

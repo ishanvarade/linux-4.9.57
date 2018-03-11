@@ -4585,7 +4585,7 @@ do_sched_setscheduler2(pid_t pid, struct sched_attr __user *uattr)
  */
 static enum hrtimer_restart restart_hrtimer_callback(struct hrtimer *timer)
 {
-	printk(KERN_INFO "#ISHAN VARADE: HR_timer test\n");
+	printk(KERN_INFO "#ISHAN VARADE: HR_timer test: restart_hrtimer_callc\n");
 	return HRTIMER_RESTART;
 }
 
