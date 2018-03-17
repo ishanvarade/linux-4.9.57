@@ -4586,7 +4586,7 @@ do_sched_setscheduler2(pid_t pid, struct sched_attr __user *uattr)
 static enum hrtimer_restart restart_hrtimer_callback(struct hrtimer *timer)
 {
 	printk(KERN_INFO "#ISHAN VARADE: HR_timer test: restart_hrtimer_callc\n");
-	return HRTIMER_RESTART;
+	return HRTIMER_NORESTART;
 }
 
 /*
@@ -4668,14 +4668,15 @@ do_sched_release_init(pid_t pid, struct timespec __user* rqtp, unsigned int len,
 static int
 do_sched_release_init_DELETE()
 {
-	/* What are you doing?*/
 	printk(KERN_ERR "ISHAN VARADE: do_sched_release_init_DELETE: STARTED\n");
 	struct hrtimer *timer;
+	kt
 
 	struct timespec tu;
 	tu.tv_sec = 2; // 2 sec
+	ktime_t delta = ktime_set(0, 0);
 	hrtimer_init_on_stack(timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
-	hrtimer_set_expires_range(timer, timespec_to_ktime(tu), 0);
+	hrtimer_set_expires_range(timer, timespec_to_ktime(tu), delta);
 
 	timer->function = restart_hrtimer_callback;
 	hrtimer_start_expires(timer, HRTIMER_MODE_REL);
