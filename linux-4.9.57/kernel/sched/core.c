@@ -4605,15 +4605,13 @@ void sched_set_restart_timer(struct task_struct *task, struct hrtimer *timer, st
 static int
 do_sched_release_init(pid_t pid, struct timespec __user* rqtp, unsigned int len, unsigned long __user *user_mask_ptr)
 {
-	//
-	//printk(KERN_ERR "SCHED_IS: Processing sched_release");
 	struct task_struct *p;
 	struct timespec tu;
 	struct sched_dl_entity *dl_se; // Need to Remove
 	cpumask_var_t new_mask;
 	int retval = 0;
 	// undo retval = 0;
-	/*	if(copy_from_user(&tu, rqtp, sizeof(tu)))
+		if(copy_from_user(&tu, rqtp, sizeof(tu)))
 		return -EFAULT;
 	if (!timespec_valid(&tu))
 		return -EINVAL;
@@ -4636,7 +4634,7 @@ do_sched_release_init(pid_t pid, struct timespec __user* rqtp, unsigned int len,
 	}
 	free_cpumask_var(new_mask);
 
-	 */
+
 	printk(KERN_ERR "ISHAN VARADE: sched_release_init completed\n");
 	//return hrtimer_sched_release(&tu, rmtp, HRTIMER_MODE_REL, CLOCK_MONOTONIC, p);
 
@@ -4747,8 +4745,8 @@ SYSCALL_DEFINE4(sched_do_job_release, pid_t, pid, struct timespec __user*, rqtp,
 {
 	/* is this working */
 	printk(KERN_INFO "# ISHAN VARADE: 20. sched_do_job_release systemcall called\n");
-	//return do_sched_release_init(pid, rqtp, len, user_mask_ptr);
-	return do_sched_release_init_DELETE();
+	return do_sched_release_init(pid, rqtp, len, user_mask_ptr);
+	//return do_sched_release_init_DELETE();
 }
 
 /**
