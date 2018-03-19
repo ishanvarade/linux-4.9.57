@@ -4611,7 +4611,7 @@ do_sched_release_init(pid_t pid, struct timespec __user* rqtp, unsigned int len,
 	cpumask_var_t new_mask;
 	int retval = 0;
 	// undo retval = 0;
-		if(copy_from_user(&tu, rqtp, sizeof(tu)))
+	if(copy_from_user(&tu, rqtp, sizeof(tu)))
 		return -EFAULT;
 	if (!timespec_valid(&tu))
 		return -EINVAL;
@@ -4666,19 +4666,30 @@ do_sched_release_init(pid_t pid, struct timespec __user* rqtp, unsigned int len,
 static int
 do_sched_release_init_DELETE()
 {
-	printk(KERN_ERR "ISHAN VARADE: do_sched_release_init_DELETE: STARTED\n");
+	/*printk(KERN_ERR "ISHAN VARADE: do_sched_release_init_DELETE: STARTED\n");
 	struct hrtimer *timer;
-	kt
+
 
 	struct timespec tu;
 	tu.tv_sec = 2; // 2 sec
 	ktime_t delta = ktime_set(0, 0);
 	hrtimer_init_on_stack(timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
-	hrtimer_set_expires_range(timer, timespec_to_ktime(tu), delta);
+	hrtimer_set_expires_range_ns(timer, timespec_to_ktime(tu), 0);
 
 	timer->function = restart_hrtimer_callback;
 	hrtimer_start_expires(timer, HRTIMER_MODE_REL);
 	printk(KERN_ERR "ISHAN VARADE: do_sched_release_init_DELETE: END\n");
+	return 0;*/
+
+	ktime_t kt;
+	kt = ktime_set(5, 0);
+	struct hrtimer timer;
+	hrtimer_init(&timer, CLOCK_MONOTONIC);
+	hrtimer_rebase(&timer, CLOCK_MONOTONIC);
+	timer.function = restart_hrtimer_callback;
+
+	hrtimer_start(&timer, kt, HRTIMER_MODE_REL);
+
 	return 0;
 
 }
@@ -4745,8 +4756,8 @@ SYSCALL_DEFINE4(sched_do_job_release, pid_t, pid, struct timespec __user*, rqtp,
 {
 	/* is this working */
 	printk(KERN_INFO "# ISHAN VARADE: 20. sched_do_job_release systemcall called\n");
-	return do_sched_release_init(pid, rqtp, len, user_mask_ptr);
-	//return do_sched_release_init_DELETE();
+	//return do_sched_release_init(pid, rqtp, len, user_mask_ptr);
+	return do_sched_release_init_DELETE();
 }
 
 /**
