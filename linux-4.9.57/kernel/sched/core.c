@@ -4664,7 +4664,7 @@ do_sched_release_init(pid_t pid, struct timespec __user* rqtp, unsigned int len,
  * ISHAN VARADE: FOR DELETE
  */
 static int
-do_sched_release_init_DELETE()
+do_sched_release_init_DELETE(void)
 {
 	/*printk(KERN_ERR "ISHAN VARADE: do_sched_release_init_DELETE: STARTED\n");
 	struct hrtimer *timer;
