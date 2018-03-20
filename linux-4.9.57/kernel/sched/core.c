@@ -4689,7 +4689,7 @@ do_sched_release_init_DELETE(void)
 	timer.function = restart_hrtimer_callback;
 
 	hrtimer_start(&timer, kt, HRTIMER_MODE_REL);
-
+//
 	return 0;
 
 }
