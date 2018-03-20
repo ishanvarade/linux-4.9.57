@@ -4756,8 +4756,8 @@ SYSCALL_DEFINE4(sched_do_job_release, pid_t, pid, struct timespec __user*, rqtp,
 {
 	/* is this working */
 	printk(KERN_INFO "# ISHAN VARADE: 20. sched_do_job_release systemcall called\n");
-	//return do_sched_release_init(pid, rqtp, len, user_mask_ptr);
-	return do_sched_release_init_DELETE();
+	return do_sched_release_init(pid, rqtp, len, user_mask_ptr);
+	//return do_sched_release_init_DELETE();
 }
 
 /**
