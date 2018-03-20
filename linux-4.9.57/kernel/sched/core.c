@@ -4684,7 +4684,7 @@ do_sched_release_init_DELETE(void)
 	ktime_t kt;
 	kt = ktime_set(5, 0);
 	struct hrtimer timer;
-	hrtimer_init(&timer, CLOCK_MONOTONIC);
+	hrtimer_init(&timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
 	hrtimer_rebase(&timer, CLOCK_MONOTONIC);
 	timer.function = restart_hrtimer_callback;
 
