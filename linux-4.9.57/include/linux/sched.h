@@ -1443,6 +1443,37 @@ struct sched_dl_entity {
 	 * own bandwidth to be enforced, thus we need one timer per task.
 	 */
 	struct hrtimer dl_timer;
+
+	/*
+	 * ISHAN VARADE
+	 */
+	int first_instance;
+//	int move_to_temp;
+//	int move_to_global;
+	int task_in_temp;
+//	int first_instance;
+//	struct hrtimer *release_timer;
+//	int palgo;
+	int gflag;
+//	ktime_t enqueue_time;
+//	int enqueue_time_flag;
+//	ktime_t dequeue_time;
+//	int dequeue_time_flag;
+//
+//	int schedFirst;
+//	ktime_t schedS;
+//	ktime_t schedE;
+//	ktime_t runT;
+//	long long int runNS;
+//
+//	struct cpumask *mask;
+	ktime_t ktime_last;
+	ktime_t ktime_now;
+//	ktime_t deq_ktime;
+	struct rq *dl_relq;
+//
+	ktime_t enq_start, enq_end;
+//	ktime_t deq_start, deq_end;
 };
 
 union rcu_special {

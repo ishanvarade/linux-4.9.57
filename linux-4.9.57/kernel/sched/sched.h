@@ -100,12 +100,12 @@ static inline void update_idle_core(struct rq *rq) { }
 int temp_to_global(void * unused);  /* extern removed */
 int global_to_ready(void * unused);
 //extern void enqueue_relq_dl_task(struct rq *rq, struct task_struct *p);
-//extern void dequeue_relq_dl_task(struct rq *rq, struct task_struct *p);
+extern void dequeue_relq_dl_task(struct rq *rq, struct task_struct *p);
 //extern void enqueue_grelq_dl_task(struct rq *rq, struct task_struct *p);
 //extern void dequeue_grelq_dl_task(struct rq *rq, struct task_struct *p);
 //
 //
-//extern int timerexpired;
+extern int timerexpired;
 //extern int IPIexpired;
 //
 //struct threadvar{
@@ -561,6 +561,15 @@ struct dl_rq {
 #endif
 };
 
+/*	ISHAN VARADE */
+struct dl_relq
+{
+	struct rb_root rb_root;
+	struct rb_node *rb_leftmost;
+	int nr_task;
+	int dl_tempq_flag;
+};
+
 #ifdef CONFIG_SMP
 
 /*
@@ -643,6 +652,8 @@ struct rq {
 	struct cfs_rq cfs;
 	struct rt_rq rt;
 	struct dl_rq dl;
+	/*	ISHAN VARADE */
+	struct dl_relq relq;	/* Release Queue */
 
 #ifdef CONFIG_FAIR_GROUP_SCHED
 	/* list of leaf cfs_rq on this cpu: */

@@ -96,6 +96,9 @@
 static struct task_struct *dequeue_service_thread;
 static struct task_struct *enqueue_service_thread;
 
+/*ISHAN VARADE*/
+int timerexpired;
+
 DEFINE_MUTEX(sched_domains_mutex);
 DEFINE_PER_CPU_SHARED_ALIGNED(struct rq, runqueues);
 
@@ -4580,13 +4583,79 @@ do_sched_setscheduler2(pid_t pid, struct sched_attr __user *uattr)
 	return retval;
 }
 
+/*	ISHAN VARADE */
+static enum hrtimer_restart wshp_release(struct hrtimer *timer,	struct task_struct *task)
+{
+	struct sched_dl_entity *dl_se = &task->dl;
+	struct rq *relq = dl_se->dl_relq;
+	struct rq *rq;
+	if(dl_se->task_in_temp == 1)
+	{
+		printk(KERN_INFO "ISHAN VARADE: Task in Temp");
+		rq = task_rq(task);
+		printk(KERN_INFO "ISHAN VARADE: Executing wshp_release\n");
+		__acquire(rq->lock);
+		dequeue_relq_dl_task(rq, task);
+		__release(rq->lock);
+		if(task)
+			wake_up_process(task);
+	}
+	else
+	{
+		printk(KERN_INFO "ISHAN VARADE: task in global queue");
+		dl_se->gflag = 1;
+		timerexpired = 1;
+		//dl_se->enq_start = ktime_get();
+		if(dequeue_service_thread)
+			wake_up_process(dequeue_service_thread);
+		else
+			printk(KERN_ERR "ISHAN VARADE: Error in service thread");
+	}
+}
+
 /*
  * ISHAN VARADE
  */
 static enum hrtimer_restart restart_hrtimer_callback(struct hrtimer *timer)
 {
-	printk(KERN_INFO "#ISHAN VARADE: HR_timer test: restart_hrtimer_callc\n");
-	return HRTIMER_NORESTART;
+	ktime_t enq_ktime_start = ktime_get();
+	struct task_struct *task = container_of(timer, struct task_struct, timer);
+	struct sched_dl_entity *dl_se = &task->dl;
+	struct rq *rq = cpu_rq(smp_processor_id());
+	__release(rq->lock);
+	if(dl_se->first_instance == -1)
+	{
+		printk(KERN_ERR "ISHAN VARADE: No restart of timer\n");
+		return HRTIMER_NORESTART;
+	}
+	//struct sched_dl_entity *dl_se = &task->dl;
+	int cpu = smp_processor_id();
+	long period_ns = dl_se->dl_deadline * 1000 ;
+	int ret_overrun;
+	long long actual_delay = 0;
+	ktime_t kt_now, delay, ktime_zero, enq_ktime_end, enq_ktime_delay, enq_ktime;
+	ktime_zero = ktime_set(0,0);
+	if(!ktime_equal(dl_se->ktime_last, ktime_zero))
+	{
+		dl_se->ktime_now = ktime_get();
+		delay = ktime_sub(dl_se->ktime_now, dl_se->ktime_last);
+		if((ktime_to_ns(delay)) > period_ns)
+		{
+			actual_delay = ktime_to_ns(delay) - period_ns;
+			period_ns = period_ns - (ktime_to_ns(delay) - period_ns);
+		}
+	}
+	ktime_t ptimer = ktime_set(0, period_ns);
+	kt_now = hrtimer_cb_get_time(timer);
+	ret_overrun = hrtimer_forward(timer, kt_now, ptimer);
+
+	dl_se->ktime_last = ktime_get();
+
+	printk(KERN_INFO "ISHAN VARADE: Timer restarted in CPU %d\n", cpu);
+	dl_se->enq_start = ktime_get();
+	wshp_release(timer, task);
+
+	return HRTIMER_RESTART;
 }
 
 /*
@@ -4644,7 +4713,7 @@ do_sched_release_init(pid_t pid, struct timespec __user* rqtp, unsigned int len,
 	//struct hrtimer_sleeper t;
 	//int ret;
 	//ktime_t ktime_rperiod;
-
+/*
 	if(copy_from_user(&tu, rqtp, sizeof(tu)))
 		return -EFAULT;
 	if (!timespec_valid(&tu))
@@ -4653,7 +4722,7 @@ do_sched_release_init(pid_t pid, struct timespec __user* rqtp, unsigned int len,
 	p = find_process_by_pid(pid);
 
 	sched_set_restart_timer(p, &p->timer, &tu);
-
+*/
 	//return ret;
 	/////////////////////////////////////////////
 	return retval;
@@ -4689,7 +4758,7 @@ do_sched_release_init_DELETE(void)
 	timer.function = restart_hrtimer_callback;
 
 	hrtimer_start(&timer, kt, HRTIMER_MODE_REL);
-//
+	//
 	return 0;
 
 }
@@ -4752,7 +4821,8 @@ SYSCALL_DEFINE2(sched_setparam_real, pid_t, pid, struct sched_attr __user *, uat
  * ISHAN VARADE
  */
 /** task release system for sched_is* **/
-SYSCALL_DEFINE4(sched_do_job_release, pid_t, pid, struct timespec __user*, rqtp, unsigned int, len, unsigned long __user *, user_mask_ptr)
+SYSCALL_DEFINE4(sched_do_job_release, pid_t, pid, struct timespec __user*, rqtp,
+		unsigned int, len, unsigned long __user *, user_mask_ptr)
 {
 	/* is this working */
 	printk(KERN_INFO "# ISHAN VARADE: 20. sched_do_job_release systemcall called\n");

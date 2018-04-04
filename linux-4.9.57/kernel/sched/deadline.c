@@ -962,6 +962,55 @@ static void enqueue_task_dl(struct rq *rq, struct task_struct *p, int flags)
 		enqueue_pushable_dl_task(rq, p);
 }
 
+/*	ISHAN VARADE 	*/
+void dequeue_relq_dl_task(struct rq *rq, struct task_struct *p)
+{
+	struct sched_dl_entity *dl_se = &p->dl;
+	struct dl_relq *dl_rq = &rq->relq; //release queue
+	/*	long long int enqueue_time;
+	ktime_t den, ktimeDe;
+        long long int dequeue_time;
+
+	 if(dl_se->dequeue_time_flag == 1 && smp_processor_id() == 0){
+                ktimeDe = ktime_get();
+                dequeue_time = (ktime_to_ns(ktimeDe) - ((ktime_to_ns(dl_se->dequeue_time))-1000000000))-1000000000;
+		//printk(KERN_ALERT "now = %lld interrupt = %lld\n",  ktime_to_ns(ktimeDe), ktime_to_ns(dl_se->dequeue_time));
+		printk(KERN_ALERT "d %lld \n" ,dequeue_time);
+
+                dl_se->dequeue_time_flag =0;
+        } */
+
+	long long int enqueue_time;
+	ktime_t den, ktimeDe;
+	long long int dequeue_time;
+	/*
+
+         if(dl_se->dequeue_time_flag == 1 && smp_processor_id() == 0){
+                ktimeDe = ktime_get();
+                den = ktime_sub(ktimeDe, dl_se->dequeue_time);
+                dequeue_time = (ktime_to_ns(den)) - dl_se->dl_period*10000;
+               //printk(KERN_ALERT "now = %lld interrupt = %lld\n",  ktime_to_ns(ktimeDe), ktime_to_ns(dl_se->dequeue_time));
+                printk(KERN_ALERT "pid %d deq %lld \n" ,task_pid_nr(p), dequeue_time);
+
+                dl_se->dequeue_time_flag =0;
+        }
+	 */
+	if (RB_EMPTY_NODE(&dl_se->rb_node)){
+		return;
+	}
+
+	if (dl_rq->rb_leftmost == &dl_se->rb_node) {
+		struct rb_node *next_node;
+
+		next_node = rb_next(&dl_se->rb_node);
+		dl_rq->rb_leftmost = next_node;
+	}
+
+	rb_erase(&dl_se->rb_node, &dl_rq->rb_root);
+	RB_CLEAR_NODE(&dl_se->rb_node);
+
+}
+
 static void __dequeue_task_dl(struct rq *rq, struct task_struct *p, int flags)
 {
 	dequeue_dl_entity(&p->dl);
