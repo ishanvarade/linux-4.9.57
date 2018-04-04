@@ -4713,7 +4713,7 @@ do_sched_release_init(pid_t pid, struct timespec __user* rqtp, unsigned int len,
 	//struct hrtimer_sleeper t;
 	//int ret;
 	//ktime_t ktime_rperiod;
-/*
+
 	if(copy_from_user(&tu, rqtp, sizeof(tu)))
 		return -EFAULT;
 	if (!timespec_valid(&tu))
@@ -4722,11 +4722,8 @@ do_sched_release_init(pid_t pid, struct timespec __user* rqtp, unsigned int len,
 	p = find_process_by_pid(pid);
 
 	sched_set_restart_timer(p, &p->timer, &tu);
-*/
-	//return ret;
-	/////////////////////////////////////////////
-	return retval;
 
+	return retval;
 }
 
 /*
