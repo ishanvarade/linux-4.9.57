@@ -4357,7 +4357,66 @@ int sched_setscheduler(struct task_struct *p, int policy,
 /* ISHAN VARADE */
 int global_to_ready(void * unused)
 {
-	printk(KERN_INFO "##### ISHAN VARADE: global_to_ready");
+	/* Service core is 0*/
+	const int SERVICE_CORE = 0;
+	struct rq *rq = cpu_rq(SERVICE_CORE);
+	struct dl_relq *dl_relq = &rq->relq;	// Global Release Queue
+	unsigned long flags;
+	struct rb_node *left, *next;
+	struct sched_dl_entity *sched_dl_entity;
+	struct task_struct *task;
+
+	while (true)
+	{
+		do
+		{
+			timerexpired = 0;
+			local_irq_save(flags);
+			left = dl_relq->rb_leftmost;
+			next = dl_relq->rb_leftmost;
+			sched_dl_entity = rb_entry(left, struct sched_dl_entity, rb_node);
+
+			while (true)
+			{
+				task = container_of(sched_dl_entity, struct task_struct, dl);
+				if (sched_dl_entity->gflag)
+				{
+					if (0 == sched_dl_entity->task_in_temp && 0 == sched_dl_entity->move_to_global)
+					{
+						__acquires(rq->lock);
+						dequeue_relq_dl_task(rq, task);
+						sched_dl_entity->move_to_global = 0;
+						sched_dl_entity->gflag = 0;
+						__release(rq->lock);
+						wake_up_process(task);	// To put the task into the ready.
+
+						/*
+						 * Time Calculations
+						 */
+						sched_dl_entity->enq_end = ktime_get();
+						ktime_t enqueue_time = ktime_sub(sched_dl_entity->enq_end, sched_dl_entity->enq_start);
+						printk(KERN_INFO "# ISHAN VARADE: Enqueue time from release (enqueue_end - enqueue_start): %lld\n.", ktime_to_ns(enqueue_time));
+						sched_dl_entity->enq_end = ktime_set(0, 0);
+						sched_dl_entity->enq_start = ktime_set(0, 0);
+					}
+				}
+				else
+				{
+					next = rb_next(&sched_dl_entity->rb_node);
+					if (NULL == next)
+						break;
+					else
+						sched_dl_entity = rb_entry(next, struct sched_dl_entity, rb_node);
+				}
+			}
+		}
+		while (1 == timerexpired);
+	}
+
+	set_current_state(TASK_INTERRUPTIBLE);
+	schedule();
+	__set_current_state(TASK_RUNNING);
+
 	return 0;
 }
 
@@ -4602,7 +4661,7 @@ static enum hrtimer_restart wshp_release(struct hrtimer *timer,	struct task_stru
 	}
 	else
 	{
-		printk(KERN_INFO "ISHAN VARADE: task in global queue");
+		printk(KERN_INFO "ISHAN VARADE: Task is in global queue.");
 		dl_se->gflag = 1;
 		timerexpired = 1;
 		//dl_se->enq_start = ktime_get();

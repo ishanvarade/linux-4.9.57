@@ -1446,15 +1446,16 @@ struct sched_dl_entity {
 
 	/*
 	 * ISHAN VARADE
+	 * INITIALIZATION is required
 	 */
 	int first_instance;
 //	int move_to_temp;
-//	int move_to_global;
+	int move_to_global; // Need to see where is this changing
 	int task_in_temp;
 //	int first_instance;
 //	struct hrtimer *release_timer;
 //	int palgo;
-	int gflag;
+	int gflag;	// local timer_expired flag
 //	ktime_t enqueue_time;
 //	int enqueue_time_flag;
 //	ktime_t dequeue_time;
@@ -1472,7 +1473,8 @@ struct sched_dl_entity {
 //	ktime_t deq_ktime;
 	struct rq *dl_relq;
 //
-	ktime_t enq_start, enq_end;
+	ktime_t enq_start;	// Time noted when rt-time task released.
+	ktime_t enq_end;	// Time noted after waking up the rt-task to move in ready queue.
 //	ktime_t deq_start, deq_end;
 };
 
