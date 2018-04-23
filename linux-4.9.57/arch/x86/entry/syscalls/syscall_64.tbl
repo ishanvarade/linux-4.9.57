@@ -340,6 +340,7 @@
 331	common	pkey_free		sys_pkey_free
 332 common sched_setparam_real		sys_sched_setparam_real
 333 common sched_do_job_release		sys_sched_do_job_release
+334 common sched_do_job_complete	sys_sched_do_job_complete
 
 #
 # x32-specific system call numbers start at 512 to avoid cache impact

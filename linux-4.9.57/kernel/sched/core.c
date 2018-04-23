@@ -4355,9 +4355,12 @@ int sched_setscheduler(struct task_struct *p, int policy,
 
 
 /* ISHAN VARADE */
+/*
+ * global_to_ready: Thread call if a task is ready to move from global release queue to ready queue.
+ */
 int global_to_ready(void * unused)
 {
-	/* Service core is 0*/
+	/* The core '0' has choosen as Service Core. */
 	const int SERVICE_CORE = 0;
 	struct rq *rq = cpu_rq(SERVICE_CORE);
 	struct dl_relq *dl_relq = &rq->relq;	// Global Release Queue
@@ -4366,10 +4369,22 @@ int global_to_ready(void * unused)
 	struct sched_dl_entity *sched_dl_entity;
 	struct task_struct *task;
 
+	/*
+	 * Infinite while loop.
+	 */
 	while (true)
 	{
+		/*
+		 * Do While(timerexpired)
+		 * timerexpired: Global flag set when any task has expired its release
+		 * timer and ready to move to ready queue of real-time core.
+		 */
 		do
 		{
+			/*
+			 * Take left node from the global release queue.
+			 * The global release queue is sorted in increasing order of release time.
+			 */
 			timerexpired = 0;
 			local_irq_save(flags);
 			left = dl_relq->rb_leftmost;
@@ -4378,6 +4393,14 @@ int global_to_ready(void * unused)
 
 			while (true)
 			{
+				/*
+				 * task: Find the task from the left node.
+				 * If the gflag (flag local to the task for release timer expire)
+				 * is set, this means that task is ready to execute.
+				 * The task dequeue from the global release queue. Set gflag and
+				 * move_to_global flag to 0(zero).
+				 * Wake_up_process() move the task to ready queue.
+				 */
 				task = container_of(sched_dl_entity, struct task_struct, dl);
 				if (sched_dl_entity->gflag)
 				{
@@ -4414,7 +4437,7 @@ int global_to_ready(void * unused)
 	}
 
 	set_current_state(TASK_INTERRUPTIBLE);
-	schedule();
+	schedule();			// Search: asmlinkage __visible void __sched schedule(void)
 	__set_current_state(TASK_RUNNING);
 
 	return 0;
@@ -4643,6 +4666,12 @@ do_sched_setscheduler2(pid_t pid, struct sched_attr __user *uattr)
 }
 
 /*	ISHAN VARADE */
+/*
+ * _If_ task is in temporary release queue of the real-time core than the task will
+ * move from the temporary release queue to ready queue.
+ * _Else_ this means the task is in global release queue. And need to be move from
+ * there to ready queue. For this just need to wake-up global_to_ready kernel thread.
+ */
 static enum hrtimer_restart wshp_release(struct hrtimer *timer,	struct task_struct *task)
 {
 	struct sched_dl_entity *dl_se = &task->dl;
@@ -4672,8 +4701,9 @@ static enum hrtimer_restart wshp_release(struct hrtimer *timer,	struct task_stru
 	}
 }
 
+/* ISHAN VARADE */
 /*
- * ISHAN VARADE
+ * Hrtimer handler called when the release timer of the task elapsed.
  */
 static enum hrtimer_restart restart_hrtimer_callback(struct hrtimer *timer)
 {
@@ -4684,7 +4714,7 @@ static enum hrtimer_restart restart_hrtimer_callback(struct hrtimer *timer)
 	__release(rq->lock);
 	if(dl_se->first_instance == -1)
 	{
-		printk(KERN_ERR "ISHAN VARADE: No restart of timer\n");
+		printk(KERN_ERR "ISHAN VARADE: restart_hrtimer_callback(): No restart of timer.\n");
 		return HRTIMER_NORESTART;
 	}
 	//struct sched_dl_entity *dl_se = &task->dl;
@@ -4727,11 +4757,14 @@ void sched_set_restart_timer(struct task_struct *task, struct hrtimer *timer, st
 	hrtimer_start_expires(timer, HRTIMER_MODE_REL);
 }
 
+/* ISHAN VARADE */
 /*
- * ISHAN VARADE
+ * This function serving two purposes.
+ * First: Set affinity of the task.
+ * Second: Set release timer.
  */
-static int
-do_sched_release_init(pid_t pid, struct timespec __user* rqtp, unsigned int len, unsigned long __user *user_mask_ptr)
+static int do_sched_release_init(pid_t pid, struct timespec __user* rqtp,
+		unsigned int len, unsigned long __user *user_mask_ptr)
 {
 	struct task_struct *p;
 	struct timespec tu;
@@ -4763,6 +4796,9 @@ do_sched_release_init(pid_t pid, struct timespec __user* rqtp, unsigned int len,
 	free_cpumask_var(new_mask);
 
 
+	/*
+	 * Set timer
+	 */
 	printk(KERN_ERR "ISHAN VARADE: sched_release_init completed\n");
 	//return hrtimer_sched_release(&tu, rmtp, HRTIMER_MODE_REL, CLOCK_MONOTONIC, p);
 
@@ -4884,6 +4920,15 @@ SYSCALL_DEFINE4(sched_do_job_release, pid_t, pid, struct timespec __user*, rqtp,
 	printk(KERN_INFO "# ISHAN VARADE: 20. sched_do_job_release systemcall called\n");
 	return do_sched_release_init(pid, rqtp, len, user_mask_ptr);
 	//return do_sched_release_init_DELETE();
+}
+
+/* ISHAN VARADE */
+/*
+ *
+ */
+SYSCALL_DEFINE0(sched_do_job_complete)
+{
+
 }
 
 /**
