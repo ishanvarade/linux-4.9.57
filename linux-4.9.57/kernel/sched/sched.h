@@ -757,7 +757,7 @@ struct rq {
 #endif
 
 	/* ISHAN VARADE */
-	int task_in_temp;
+	bool task_in_temp;		//int task_in_temp;
 };
 
 static inline int cpu_of(struct rq *rq)

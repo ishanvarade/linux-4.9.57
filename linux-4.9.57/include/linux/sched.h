@@ -1449,15 +1449,15 @@ struct sched_dl_entity {
 	 * INITIALIZATION is required
 	 */
 	int first_instance;
-//	int move_to_temp;
-	int move_to_global; // Need to see where is this changing
-	int task_in_temp;
+	bool move_to_temp;	//int move_to_temp;	// Set when task finished its job in the current cycle and now ready to move to temporarily release queue.
+	bool move_to_global;	//int move_to_global; // Need to see where is this changing
+	bool task_in_temp;	//int task_in_temp;
 //	int first_instance;
 //	struct hrtimer *release_timer;
 //	int palgo;
 	int gflag;	// local timer_expired flag
 //	ktime_t enqueue_time;
-//	int enqueue_time_flag;
+	int enqueue_time_flag;
 //	ktime_t dequeue_time;
 //	int dequeue_time_flag;
 //
@@ -1475,7 +1475,7 @@ struct sched_dl_entity {
 //
 	ktime_t enq_start;	// Time noted when rt-time task released.
 	ktime_t enq_end;	// Time noted after waking up the rt-task to move in ready queue.
-//	ktime_t deq_start, deq_end;
+	ktime_t deq_start, deq_end;
 };
 
 union rcu_special {

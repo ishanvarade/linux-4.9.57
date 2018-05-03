@@ -93,6 +93,8 @@
 
 
 /*ISHAN VARADE*/
+/* Service Core */
+#define SCHED_SERVICE_CORE 0
 static struct task_struct *dequeue_service_thread;
 static struct task_struct *enqueue_service_thread;
 
@@ -3379,6 +3381,34 @@ static void __sched notrace __schedule(bool preempt)
 			deactivate_task(rq, prev, DEQUEUE_SLEEP);
 			prev->on_rq = 0;
 
+			/* ISHAN VARADE */
+			/*
+			 */
+			ktime_t ktime_start, ktime_end, ktime; // can make global to calculate correct time
+			ktime_start = ktime_get();
+
+			if (dl_task(prev))
+			{
+				struct sched_dl_entity *sched_dl_entity = &prev->dl;
+				if (sched_dl_entity->move_to_temp)
+				{
+					enqueue_relq_dl_task(rq, prev);
+					sched_dl_entity->move_to_temp = false;
+					sched_dl_entity->move_to_global = true;
+					sched_dl_entity->task_in_temp = true;
+					rq->task_in_temp = true;
+					smp_call_function_single(SCHED_SERVICE_CORE,
+							service_ipi_handler, NULL, 0);
+
+					/*	Time calculation */
+					ktime_end = ktime_get();
+					ktime = ktime_sub(ktime_end, ktime_start);
+					printf(KERR_INFO "#ISHAN VARADE: Time take for execution of sched_do_job_complete: %lld\n", ktime_to_ns(ktime))
+
+					sched_dl_entity->deq_start = ktime_get();
+					sched_dl_entity->enqueue_time_flag = true;
+				}
+			}
 			/*
 			 * If a worker went to sleep, notify and ask workqueue
 			 * whether it wants to wake up a task to maintain
@@ -4361,8 +4391,8 @@ int sched_setscheduler(struct task_struct *p, int policy,
 int global_to_ready(void * unused)
 {
 	/* The core '0' has choosen as Service Core. */
-	const int SERVICE_CORE = 0;
-	struct rq *rq = cpu_rq(SERVICE_CORE);
+	//const int SERVICE_CORE = 0;
+	struct rq *rq = cpu_rq(SCHED_SERVICE_CORE);
 	struct dl_relq *dl_relq = &rq->relq;	// Global Release Queue
 	unsigned long flags;
 	struct rb_node *left, *next;
@@ -4465,7 +4495,7 @@ int temp_to_global(void * unused)
 int sched_setscheduler2(struct task_struct *p, const struct sched_attr *attr)
 {
 	/* Service core is 0 */
-	const int SERVICE_CORE = 0;
+	//const int SERVICE_CORE = 0;
 	static int create_servicethread_flag = 0; // Changed bool to int
 	int i;
 	struct rq *rq;
@@ -4475,9 +4505,9 @@ int sched_setscheduler2(struct task_struct *p, const struct sched_attr *attr)
 		printk(KERN_INFO "# ISHAN VARADE: 3. Only One time  called\n");
 		create_servicethread_flag = 1;
 		dequeue_service_thread = kthread_rt_create(global_to_ready, NULL, "Global_to_ready_thread");
-		kthread_bind(dequeue_service_thread, SERVICE_CORE);
+		kthread_bind(dequeue_service_thread, SCHED_SERVICE_CORE);
 		enqueue_service_thread = kthread_rt_create(temp_to_global, NULL, "Temp_to_global_thread");
-		kthread_bind(enqueue_service_thread, SERVICE_CORE);
+		kthread_bind(enqueue_service_thread, SCHED_SERVICE_CORE);
 
 		//	timerexpired = 0;
 		//	IPIexpired = 0;
@@ -4821,6 +4851,25 @@ static int do_sched_release_init(pid_t pid, struct timespec __user* rqtp,
 	return retval;
 }
 
+/* ISHAN VARADE */
+/*
+ * This function called by sched_do_job_complete system call. When a task finish
+ * its job for the cycle than it call this system call.
+ * This system call move move the task to the temporarily release queue of the
+ * executing queue.
+ */
+void __sched_do_job_complete(void)
+{
+	int cpu = smp_processor_id();
+	struct rq *rq = cpu_rq(cpu);
+	struct task_struct *task = rq->curr;
+	struct sched_dl_entity *sched_dl_entity = &task->dl; // IMPORTANT: where is updating task->dl???????/
+	sched_dl_entity->move_to_temp = 1;
+	set_current_state(TASK_INTERRUPTIBLE);
+	schedule();
+	__set_current_state(TASK_RUNNING);
+}
+
 /*
  * ISHAN VARADE: FOR DELETE
  */
@@ -4928,7 +4977,7 @@ SYSCALL_DEFINE4(sched_do_job_release, pid_t, pid, struct timespec __user*, rqtp,
  */
 SYSCALL_DEFINE0(sched_do_job_complete)
 {
-
+	__sched_do_job_complete();
 }
 
 /**

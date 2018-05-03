@@ -963,6 +963,9 @@ static void enqueue_task_dl(struct rq *rq, struct task_struct *p, int flags)
 }
 
 /*	ISHAN VARADE 	*/
+/*
+ *
+ */
 void dequeue_relq_dl_task(struct rq *rq, struct task_struct *p)
 {
 	struct sched_dl_entity *dl_se = &p->dl;
@@ -1009,6 +1012,36 @@ void dequeue_relq_dl_task(struct rq *rq, struct task_struct *p)
 	rb_erase(&dl_se->rb_node, &dl_rq->rb_root);
 	RB_CLEAR_NODE(&dl_se->rb_node);
 
+}
+
+/* ISHAN VARADE */
+/*
+ * Enqueue the task in release queue.
+ */
+void enqueue_relq_dl_task(struct rq *rq, struct task_struct *task)
+{
+	struct sched_dl_entity *sched_dl_entity = &task->dl;
+	struct dl_rq *dl_rq = &rq->relq;
+	struct rb_node **link = &dl_rq->rb_root.rb_node;
+	struct rb_node *parent = NULL;
+	struct sched_dl_entity *entry;
+	bool leftmost = true;
+
+	BUT_ON(!RB_EMPTY_NODE(&sched_dl_entity->rb_node));
+	while (*link)
+	{
+		parent = *link;
+		entry = rb_entry(parent, struct sched_dl_entity, rb_node);
+		link = &parent->rb_right;
+		leftmost = false;
+	}
+
+	if (leftmost)
+	{
+		dl_rq->rb_leftmost = &sched_dl_entity->rb_node;
+	}
+	rb_link_node(&sched_dl_entity->rb_node, parent, link);
+	rb_insert_color(&sched_dl_entity->rb_node, &dl_rq->rb_root);
 }
 
 static void __dequeue_task_dl(struct rq *rq, struct task_struct *p, int flags)
