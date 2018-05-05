@@ -3383,6 +3383,8 @@ static void __sched notrace __schedule(bool preempt)
 
 			/* ISHAN VARADE */
 			/*
+			 * Move the task into the temporary release queue of RT-Core.
+			 * The task_in_temp flag set and IPI to wakeup the temp_to_global thread.
 			 */
 			ktime_t ktime_start, ktime_end, ktime; // can make global to calculate correct time
 			ktime_start = ktime_get();
@@ -3397,14 +3399,17 @@ static void __sched notrace __schedule(bool preempt)
 					sched_dl_entity->move_to_global = true;
 					sched_dl_entity->task_in_temp = true;
 					rq->task_in_temp = true;
+					/* IPI */
 					smp_call_function_single(SCHED_SERVICE_CORE,
 							service_ipi_handler, NULL, 0);
 
-					/*	Time calculation */
+					/* Time calculation */
 					ktime_end = ktime_get();
 					ktime = ktime_sub(ktime_end, ktime_start);
-					printf(KERR_INFO "#ISHAN VARADE: Time take for execution of sched_do_job_complete: %lld\n", ktime_to_ns(ktime))
+					printf(KERR_INFO "#ISHAN VARADE: Time take for execution of "
+							"sched_do_job_complete: %lld\n", ktime_to_ns(ktime));
 
+					/* Time calculation till temp_to_global thread finished */
 					sched_dl_entity->deq_start = ktime_get();
 					sched_dl_entity->enqueue_time_flag = true;
 				}
@@ -4474,10 +4479,83 @@ int global_to_ready(void * unused)
 }
 
 /* ISHAN VARADE */
-int temp_to_global(void * unused)
+/*
+ *
+ */
+int temp_to_global(void)
 {
-	printk(KERN_INFO "##### ISHAN VARADE: temp_to_global");
+	int smp_core_id = smp_processor_id();
+	if (SCHED_SERVICE_CORE == smp_core_id)
+		printk(KERN_INFO "# ISHAN VARADE: temp_to_global is executing in %d", smp_core_id);
+	else
+		printk(KERN_ERR "# ISHAN VARADE: temp_to_global is executing in %d instead "
+				"and not in SCHED_SERVICE_CORE = %d", smp_core_id, SCHED_SERVICE_CORE);
+	struct rq *global_rq = cpu_rq(SCHED_SERVICE_CORE);
+
+	struct sched_dl_entity *sched_dl_entity;
+	struct task_struct  *task;
+	struct rq *rq;
+	struct rb_node *next_node;
+
+	int i;
+	while (true)
+	{
+		for_each_possible_cpu(i)
+		{
+			rq = cpu_rq(i);
+			next_node = rq->relq.rb_leftmost;
+			if (next_node != NULL)
+			{
+				if (rq->task_in_temp)
+				{
+					sched_dl_entity = rb_entry(next_node, struct sched_dl_entity, rb_node);
+					task = container_of(sched_dl_entity, struct task_struct, dl);
+
+					__acquire(rq->lock);
+					dequeue_relq_dl_task(rq, task);
+					sched_dl_entity->task_in_temp = false;
+					__release(rq->lock);
+
+					if (sched_dl_entity->move_to_global)
+					{
+						__acquire(global_rq->lock);
+						enqueue_relq_dl_task(global_rq, task);
+						__release(global_rq->lock);
+						sched_dl_entity->move_to_global = false;
+					}
+					sched_dl_entity->deq_end = ktime_get();
+					if (sched_dl_entity->enqueue_time_flag)
+					{
+						ktime_t deq_time = ktime_sub(sched_dl_entity->deq_end,
+								sched_dl_entity->deq_start);
+						sched_dl_entity->enqueue_time_flag = false;
+						printk(KERN_INFO "# ISHAN VARADE: Elapsed time from IPI "
+								"till finished the temp_to_global thread move the "
+								"task in Global Release queue: %lld.\n",
+								ktime_to_ns(deq_time));
+					}
+					sched_dl_entity->deq_start = ktime_set(0, 0);
+					sched_dl_entity->deq_end = ktime_set(0, 0);
+				}
+			}
+		}
+		set_current_state(TASK_INTERRUPTIBLE);
+		schedule();
+	}
+
 	return 0;
+}
+
+/* ISHAN VARADE */
+/*
+ * IPI handler to wakeup the temp_to_global Service Core thread.
+ * This IPI called when task complete its cycle and move to temporary release
+ * queue of the core. This IPI handler wakeup the thread to move the task into
+ * global release queue.
+ */
+void service_ipi_handler(void)
+{
+	wake_up_process(enqueue_service_thread);
 }
 
 
@@ -4509,7 +4587,7 @@ int sched_setscheduler2(struct task_struct *p, const struct sched_attr *attr)
 		enqueue_service_thread = kthread_rt_create(temp_to_global, NULL, "Temp_to_global_thread");
 		kthread_bind(enqueue_service_thread, SCHED_SERVICE_CORE);
 
-		//	timerexpired = 0;
+			timerexpired = 0;
 		//	IPIexpired = 0;
 		for_each_possible_cpu(i){
 			rq = cpu_rq(i);

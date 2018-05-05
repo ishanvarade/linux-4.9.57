@@ -1457,7 +1457,7 @@ struct sched_dl_entity {
 //	int palgo;
 	int gflag;	// local timer_expired flag
 //	ktime_t enqueue_time;
-	int enqueue_time_flag;
+	bool enqueue_time_flag;	//int enqueue_time_flag;
 //	ktime_t dequeue_time;
 //	int dequeue_time_flag;
 //
